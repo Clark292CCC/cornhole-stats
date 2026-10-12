@@ -175,18 +175,6 @@
       tile("Win %", pct(p.winPct), p.wins + "-" + p.losses) +
       tile("4-Bagger %", pct(p.fourPct), p.fours + " in " + p.rounds + " rounds") +
       tile("Bags in / on / off", p.inPct == null ? "-" : pct(p.inPct, 0) + " / " + pct(p.onPct, 0) + " / " + pct(p.offPct, 0), "in the hole / on the board / off") + "</div>";
-    if (p.ranks && p.ranks.length) {
-      html += "<h2>Where they rank</h2><div class=\"card\"><p class=\"muted\" style=\"margin:0 0 10px\">Against every " + esc(league()) + " player with " + lg.minNights +
-        "+ nights. 100 = best, 50 = middle.</p><div class=\"bars\">";
-      p.ranks.forEach(function (r) {
-        var color = r.pct >= 75 ? "var(--good)" : r.pct >= 40 ? "var(--mid)" : "var(--low)";
-        html += '<div class="bar-row"><span>' + esc(r.label) + '</span><span class="bar"><i style="width:' + Math.max(r.pct, 2) + "%;background:" + color +
-          '"></i></span><span class="pct">' + r.pct + '</span><span class="val">' + esc(r.value) + "</span></div>";
-      });
-      html += "</div></div>";
-    } else {
-      html += '<p class="muted" style="margin-top:14px">Rankings start after ' + lg.minNights + " nights.</p>";
-    }
     html += "<h2>Recent nights</h2><div class=\"table-wrap\"><table><thead><tr><th class=\"l\">Night</th><th class=\"l\">Partner</th><th>Finish</th><th>Record</th><th>PPR</th><th class=\"hide-sm\">DPR</th><th class=\"hide-sm\">4-Bag</th></tr></thead><tbody>";
     p.recent.forEach(function (r) {
       html += '<tr><td class="l"><a href="#/night/' + r.date + '">' + d8(r.date) + '</a></td><td class="l">' + playerLink(r.partner) + "</td><td>" + ord(r.place) +
