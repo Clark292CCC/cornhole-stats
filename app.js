@@ -37,6 +37,15 @@
     var m = parseInt(p[1], 10) - 1, d = parseInt(p[2], 10);
     return long ? LONG[m] + " " + d + ", " + p[0] : MONTHS[m] + " " + d;
   }
+  // The period a league's stats cover, e.g. "January 5 \u2013 October 5, 2026" (first night to latest night).
+  function span(lg) {
+    if (!lg.events.length) return "";
+    var first = lg.events[lg.events.length - 1].date, last = lg.events[0].date;
+    if (first === last) return d8(last, true);
+    var a = d8(first, true), b = d8(last, true);
+    if (first.slice(0, 4) === last.slice(0, 4)) a = a.replace(/, \d{4}$/, "");
+    return a + " \u2013 " + b;
+  }
   function pct(v, digits) { return v == null ? "-" : (v * 100).toFixed(digits == null ? 1 : digits) + "%"; }
   function num(v, digits) { return v == null ? "-" : Number(v).toFixed(digits == null ? 2 : digits); }
   function signed(v) { return v == null ? "-" : (v > 0 ? "+" : "") + Number(v).toFixed(2); }
@@ -57,7 +66,7 @@
   function home() {
     var lg = L(), ev = lg.events[0];
     var html = "<h1>" + esc(title(league())) + "</h1>";
-    html += '<p class="sub">' + lg.events.length + " nights &bull; " + lg.players.length + " players</p>";
+    html += '<p class="sub">' + esc(span(lg)) + " &bull; " + lg.events.length + " nights &bull; " + lg.players.length + " players</p>";
     html += '<div style="margin-top:14px"><input class="search" id="q" type="search" placeholder="Find a player&hellip;" autocomplete="off"></div>';
     html += '<div id="results"></div>';
     if (ev) {
@@ -84,7 +93,7 @@
       });
       return h + "</ul></div>";
     }
-    html += "<h2>Career leaders</h2><div class=\"grid g3\">" +
+    html += "<h2>Career leaders</h2><p class=\"muted\" style=\"margin:-4px 0 10px\">" + esc(span(lg)) + "</p><div class=\"grid g3\">" +
       top("ppr", function (v) { return num(v); }, "PPR") +
       top("dpr", signed, "DPR") +
       top("winPct", function (v) { return pct(v); }, "Win %") +
@@ -110,7 +119,7 @@
       ["name", "Player", "l"], ["nights", "Nights"], ["record", "W-L", "hide-sm"], ["winPct", "Win %"], ["ppr", "PPR"], ["dpr", "DPR"],
       ["fourPct", "4-Bag %", "hide-sm"], ["inPct", "In %", "hide-sm"], ["titles", "Titles"]
     ];
-    var html = "<h1>Players</h1><p class=\"sub\">" + esc(title(league())) + " &bull; tap a column to sort &bull; grey = fewer than " + lg.minNights + " nights</p>";
+    var html = "<h1>Players</h1><p class=\"sub\">" + esc(title(league())) + " &bull; " + esc(span(lg)) + "</p><p class=\"muted\" style=\"margin:2px 0 0\">Tap a column to sort &bull; grey = fewer than " + lg.minNights + " nights</p>";
     html += '<div style="margin:14px 0"><input class="search" id="pq" type="search" placeholder="Search players&hellip;" autocomplete="off"></div>';
     html += '<div class="table-wrap"><table><thead><tr>' + cols.map(function (c) {
       return '<th data-k="' + c[0] + '" class="' + (c[2] || "") + (sortState.key === c[0] ? " sorted" : "") + '">' + c[1] + (sortState.key === c[0] ? (sortState.dir < 0 ? " &darr;" : " &uarr;") : "") + "</th>";
@@ -185,7 +194,7 @@
 
   function nights() {
     var lg = L();
-    var html = "<h1>Nights</h1><p class=\"sub\">" + esc(title(league())) + " &bull; " + lg.events.length + " nights</p><div class=\"card\" style=\"margin-top:14px;padding:0\">";
+    var html = "<h1>Nights</h1><p class=\"sub\">" + esc(title(league())) + " &bull; " + lg.events.length + " nights &bull; " + esc(span(lg)) + "</p><div class=\"card\" style=\"margin-top:14px;padding:0\">";
     lg.events.forEach(function (ev) {
       var win = ev.standings[0];
       html += '<a class="list-link" href="#/night/' + ev.date + '"><span class="date">' + d8(ev.date) + " " + ev.date.slice(0, 4) + '</span><span class="who">' +
@@ -224,7 +233,7 @@
   function records() {
     var lg = L(), limit = recordLimit();
     var sections = ["Career Totals", "Best Single Nights"];
-    var html = "<h1>Record Book</h1><p class=\"sub\">" + esc(title(league())) + " &bull; all-time</p><div class=\"pills records-bar\">" + sections.map(function (s) {
+    var html = "<h1>Record Book</h1><p class=\"sub\">" + esc(title(league())) + " &bull; all-time &bull; " + esc(span(lg)) + "</p><div class=\"pills records-bar\">" + sections.map(function (s) {
       return '<button type="button" data-sec="' + s + '" class="' + (s === recordSection ? "on" : "") + '">' + s + "</button>";
     }).join("") + '<label class="limit">Show <select id="limit" aria-label="How many per record">' + [5, 10, 25].map(function (n) {
       return '<option value="' + n + '"' + (n === limit ? " selected" : "") + ">Top " + n + "</option>";
@@ -368,8 +377,7 @@
     return r.json();
   }).then(function (data) {
     DATA = data;
-    var latest = function (l) { var e = data.leagues[l].events[0]; return e ? e.date : ""; };
-    setLeague(getLeague() || (latest("thursday") >= latest("monday") ? "thursday" : "monday"));
+    setLeague(getLeague() || "monday");   // first visit opens on Monday; after that, whichever they picked last
     var g = String(data.generatedAt || "");
     document.getElementById("updated").textContent = "Updated " + d8(g.slice(0, 10), true) + (g.length > 11 ? " at " + g.slice(11, 16) : "") + ".";
     route();
