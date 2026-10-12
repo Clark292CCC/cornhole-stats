@@ -216,15 +216,22 @@
   }
 
   var recordSection = "Career Totals";
+  function recordLimit() {
+    var n = 5;
+    try { n = parseInt(localStorage.getItem("recordLimit"), 10) || 5; } catch (e) { /* private mode */ }
+    return [5, 10, 25].indexOf(n) >= 0 ? n : 5;
+  }
   function records() {
-    var lg = L();
+    var lg = L(), limit = recordLimit();
     var sections = ["Career Totals", "Best Single Nights"];
-    var html = "<h1>Record Book</h1><p class=\"sub\">" + esc(title(league())) + " &bull; all-time</p><div class=\"pills\">" + sections.map(function (s) {
+    var html = "<h1>Record Book</h1><p class=\"sub\">" + esc(title(league())) + " &bull; all-time</p><div class=\"pills records-bar\">" + sections.map(function (s) {
       return '<button type="button" data-sec="' + s + '" class="' + (s === recordSection ? "on" : "") + '">' + s + "</button>";
-    }).join("") + '</div><div class="grid g3">';
+    }).join("") + '<label class="limit">Show <select id="limit" aria-label="How many per record">' + [5, 10, 25].map(function (n) {
+      return '<option value="' + n + '"' + (n === limit ? " selected" : "") + ">Top " + n + "</option>";
+    }).join("") + '</select></label></div><div class="grid g3">';
     lg.records.filter(function (b) { return b.section === recordSection; }).forEach(function (b) {
       html += '<div class="card board"><h3>' + esc(b.title) + '</h3><p class="rule">' + esc(b.rule || "") + '</p><ul class="leader-list">';
-      b.rows.slice(0, 5).forEach(function (r, i) {
+      b.rows.slice(0, limit).forEach(function (r, i) {
         html += '<li><span class="n">' + (i + 1) + "</span><span>" + playerLink(r.name) + '<span class="note">' + esc(r.note) + '</span></span><span class="v">' + esc(r.value) + "</span></li>";
       });
       html += "</ul></div>";
@@ -232,6 +239,10 @@
     view.innerHTML = html + "</div>";
     var btns = view.querySelectorAll("[data-sec]");
     for (var i = 0; i < btns.length; i++) btns[i].addEventListener("click", function () { recordSection = this.getAttribute("data-sec"); records(); });
+    document.getElementById("limit").addEventListener("change", function () {
+      try { localStorage.setItem("recordLimit", this.value); } catch (e) { /* ignore */ }
+      records();
+    });
   }
 
   function leaguePage() {

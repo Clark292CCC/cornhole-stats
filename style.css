@@ -110,6 +110,9 @@ tr.dim td { color: var(--muted); }
 .board .rule { color: var(--muted); font-size: 12px; margin: 2px 0 6px; }
 .pills { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0 12px; }
 .pills button { background: var(--panel); color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; font: 600 13px Inter, sans-serif; }
+.records-bar { align-items: center; }
+.limit { margin-left: auto; color: var(--muted); font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
+.limit select { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: 600 13px Inter, sans-serif; }
 .pills button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .chart { width: 100%; height: auto; display: block; }
 .chart text { fill: var(--muted); font: 11px Inter, sans-serif; }
