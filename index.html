@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cincinnati Cornhole Club Stats</title>
+<meta name="description" content="Player stats, results and records for Monday Night Cornhole and Thursday Cornhole.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Saira+Extra+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-league="thursday">
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="#/">
+      <span class="brand-big">Cincinnati</span>
+      <span class="brand-small">Cornhole Club</span>
+    </a>
+    <div class="switch" role="tablist" aria-label="League">
+      <button type="button" data-set-league="monday" role="tab">Monday</button>
+      <button type="button" data-set-league="thursday" role="tab">Thursday</button>
+    </div>
+  </div>
+  <nav class="wrap tabs" aria-label="Sections">
+    <a href="#/" data-tab="home">Home</a>
+    <a href="#/players" data-tab="players">Players</a>
+    <a href="#/nights" data-tab="nights">Nights</a>
+    <a href="#/records" data-tab="records">Records</a>
+    <a href="#/league" data-tab="league" class="thursday-only">League</a>
+  </nav>
+</header>
+<main class="wrap" id="view" aria-live="polite">
+  <p class="muted loading">Loading stats&hellip;</p>
+</main>
+<footer class="wrap foot">
+  <p id="updated" class="muted"></p>
+  <p class="muted">Monday and Thursday stats are kept separate. Win % counts every scored game.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>
