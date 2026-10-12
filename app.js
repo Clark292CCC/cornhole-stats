@@ -338,6 +338,20 @@
     else if (page === "league") leaguePage();
     else home();
     window.scrollTo(0, 0);
+    countView(league() + "/" + (hash || "home"), document.title);
+  }
+
+  // Visitor counts: one per page viewed, e.g. "thursday/player/Josh R." (the counter script loads after this one).
+  var lastCounted = "";
+  function countView(path, pageTitle, tries) {
+    path = "/" + decodeURIComponent(path);
+    if (path === lastCounted) return;
+    if (window.goatcounter && typeof window.goatcounter.count === "function") {
+      lastCounted = path;
+      try { window.goatcounter.count({ path: path, title: pageTitle }); } catch (e) { /* never break the site over counting */ }
+    } else if ((tries || 0) < 20) {
+      setTimeout(function () { countView(path.slice(1), pageTitle, (tries || 0) + 1); }, 500);
+    }
   }
 
   var btns = document.querySelectorAll("[data-set-league]");
