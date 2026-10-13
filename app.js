@@ -184,15 +184,70 @@
       tile("Win %", pct(p.winPct), p.wins + "-" + p.losses) +
       tile("4-Bagger %", pct(p.fourPct), p.fours + " in " + p.rounds + " rounds") +
       tile("Bags in / on / off", p.inPct == null ? "-" : pct(p.inPct, 0) + " / " + pct(p.onPct, 0) + " / " + pct(p.offPct, 0), "in the hole / on the board / off") + "</div>";
+    if (p.trend && p.trend.length > 1) html += "<h2>PPR night by night</h2><div class=\"card\">" + trendChart(p) + "</div>";
+    html += pairTable("partners", "With each partner", "Every game played together, most played first", "Partner", "Win %", p.partners,
+      function (r) { return pct(r.w / (r.w + r.l), 0); });
+    html += pairTable("versus", "Head to head", "Against each opponent, most played first", "Opponent", "Avg score", p.versus,
+      function (r) { var g = r.w + r.l; return (r.pf / g).toFixed(1) + "-" + (r.pa / g).toFixed(1); });
     html += "<h2>Recent nights</h2><div class=\"table-wrap\"><table><thead><tr><th class=\"l\">Night</th><th class=\"l\">Partner</th><th>Finish</th><th>Record</th><th>PPR</th><th class=\"hide-sm\">DPR</th><th class=\"hide-sm\">4-Bag</th></tr></thead><tbody>";
     p.recent.forEach(function (r) {
       html += '<tr><td class="l"><a href="#/night/' + r.date + '">' + d8(r.date) + '</a></td><td class="l">' + playerLink(r.partner) + "</td><td>" + ord(r.place) +
         "</td><td>" + (r.wins == null ? "-" : r.wins + "-" + r.losses) + "</td><td>" + num(r.ppr) + '</td><td class="hide-sm">' + signed(r.dpr) + '</td><td class="hide-sm">' + (r.fours || 0) + "</td></tr>";
     });
     view.innerHTML = html + "</tbody></table></div>";
+    var more = view.querySelectorAll("[data-more]");
+    for (var i = 0; i < more.length; i++) more[i].addEventListener("click", function (e) {
+      e.preventDefault();
+      var rows = view.querySelectorAll("tr.extra-" + this.getAttribute("data-more"));
+      for (var j = 0; j < rows.length; j++) rows[j].style.display = "";
+      this.style.display = "none";
+    });
+  }
+
+  var PAIR_ROWS = 8;
+  function pairTable(key, heading, sub, who, lastCol, rows, cell) {
+    if (!rows || !rows.length) return "";
+    var html = "<h2>" + heading + '</h2><p class="sub pair-sub">' + sub + '</p><div class="table-wrap"><table><thead><tr><th class="l">' + who +
+      "</th><th>Record</th><th>" + lastCol + '</th><th class="hide-sm">Last</th></tr></thead><tbody>';
+    rows.forEach(function (r, i) {
+      html += "<tr" + (i >= PAIR_ROWS ? ' class="extra-' + key + '" style="display:none"' : "") + '><td class="l">' + playerLink(r.name) + "</td><td>" +
+        r.w + "-" + r.l + "</td><td>" + cell(r) + '</td><td class="hide-sm">' + d8(r.last) + "</td></tr>";
+    });
+    html += "</tbody></table></div>";
+    if (rows.length > PAIR_ROWS) html += '<a href="#" class="more" data-more="' + key + '">Show all ' + rows.length + " &darr;</a>";
+    return html;
+  }
+
+  function trendChart(p) {
+    var t = p.trend, avg = p.ppr;
+    var narrow = window.innerWidth < 640, W = narrow ? 360 : 700, H = narrow ? 200 : 230, left = 30, right = 14, top = 16, bottom = 30;
+    var vals = t.map(function (r) { return r.ppr; }).concat(avg == null ? [] : [avg]);
+    var lo = Math.floor(Math.min.apply(null, vals) - 0.3), hi = Math.ceil(Math.max.apply(null, vals) + 0.3);
+    var step = hi - lo > 6 ? 2 : 1;
+    function x(i) { return left + (W - left - right) * (t.length > 1 ? i / (t.length - 1) : 0.5); }
+    function y(v) { return top + (hi - v) / (hi - lo) * (H - top - bottom); }
+    // Date labels: every night when there's room, otherwise spread out, always including the latest night.
+    var every = Math.max(1, Math.ceil(t.length / (narrow ? 4 : 8)));
+    var g = '<svg class="chart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="PPR each night">';
+    for (var v = lo; v <= hi; v += step) g += '<line x1="' + left + '" x2="' + (W - right) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="#2a2a2a"/><text x="' +
+      (left - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + v + "</text>";
+    if (avg != null) g += '<line x1="' + left + '" x2="' + (W - right) + '" y1="' + y(avg) + '" y2="' + y(avg) + '" stroke="var(--accent-2)" stroke-dasharray="5 5"/>';
+    g += '<polyline fill="none" stroke="var(--accent)" stroke-width="' + (t.length > 20 ? 2 : 3) + '" stroke-linejoin="round" points="' +
+      t.map(function (r, i) { return x(i).toFixed(1) + "," + y(r.ppr).toFixed(1); }).join(" ") + '"/>';
+    t.forEach(function (r, i) {
+      var won = r.place === 1, last = i === t.length - 1, crowded = (W - left - right) / Math.max(1, t.length - 1) < 16;
+      g += '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(r.ppr).toFixed(1) + '" r="' + (won ? (crowded ? 4.5 : 6.5) : (crowded ? 2.5 : 4)) + '" fill="' + (won ? "var(--accent)" : "#0b0b0b") +
+        '" stroke="var(--accent)" stroke-width="2"><title>' + d8(r.date) + ": " + num(r.ppr) + " PPR" + (r.place ? " • " + ord(r.place) : "") + "</title></circle>";
+      if (last || (i % every === 0 && t.length - 1 - i >= every))
+        g += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="' + (last && t.length > 1 ? "end" : i === 0 ? "start" : "middle") + '">' + d8(r.date) + "</text>";
+    });
+    return g + '</svg><div class="legend"><span><i style="background:var(--accent)"></i>PPR each night</span>' +
+      (avg != null ? '<span><i style="background:var(--accent-2)"></i>their average (' + num(avg) + ")</span>" : "") +
+      "<span>big dot = won the night</span></div>";
   }
 
   function nights() {
+
     var lg = L();
     var html = "<h1>Nights</h1><p class=\"sub\">" + esc(title(league())) + " &bull; " + lg.events.length + " nights &bull; " + esc(span(lg)) + "</p><div class=\"card\" style=\"margin-top:14px;padding:0\">";
     lg.events.forEach(function (ev) {
@@ -232,7 +287,17 @@
   }
   function records() {
     var lg = L(), limit = recordLimit();
-    var sections = ["Career Totals", "Best Single Nights"];
+    var sections = [];
+    lg.records.forEach(function (b) { if (sections.indexOf(b.section) < 0) sections.push(b.section); });
+    if (sections.indexOf(recordSection) < 0) recordSection = sections[0];
+    var known = {};
+    lg.players.forEach(function (p) { known[p.name] = true; });
+    function who(text) {
+      // "A", "A & B" or "A & B vs C & D"; anything that isn't a player (a court) is plain text.
+      return String(text).split(" vs ").map(function (side) {
+        return side.split(" & ").map(function (n) { return known[n] ? playerLink(n) : esc(n); }).join(" &amp; ");
+      }).join(' <span class="muted">vs</span> ');
+    }
     var html = "<h1>Record Book</h1><p class=\"sub\">" + esc(title(league())) + " &bull; all-time &bull; " + esc(span(lg)) + "</p><div class=\"pills records-bar\">" + sections.map(function (s) {
       return '<button type="button" data-sec="' + s + '" class="' + (s === recordSection ? "on" : "") + '">' + s + "</button>";
     }).join("") + '<label class="limit">Show <select id="limit" aria-label="How many per record">' + [5, 10, 25].map(function (n) {
@@ -241,7 +306,7 @@
     lg.records.filter(function (b) { return b.section === recordSection; }).forEach(function (b) {
       html += '<div class="card board"><h3>' + esc(b.title) + '</h3><p class="rule">' + esc(b.rule || "") + '</p><ul class="leader-list">';
       b.rows.slice(0, limit).forEach(function (r, i) {
-        html += '<li><span class="n">' + (i + 1) + "</span><span>" + playerLink(r.name) + '<span class="note">' + esc(r.note) + '</span></span><span class="v">' + esc(r.value) + "</span></li>";
+        html += '<li><span class="n">' + (i + 1) + "</span><span>" + who(r.name) + '<span class="note">' + esc(r.note) + '</span></span><span class="v">' + esc(r.value) + "</span></li>";
       });
       html += "</ul></div>";
     });
