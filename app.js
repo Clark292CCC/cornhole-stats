@@ -189,7 +189,7 @@
     if (p.trend && p.trend.length > 1) html += "<h2>PPR night by night</h2><div class=\"card\">" + trendChart(p) + "</div>";
     html += pairTable("partners", "With each partner", "Every game played together, most played first", "Partner", "Win %", p.partners,
       function (r) { return pct(r.w / (r.w + r.l), 0); });
-    html += pairTable("versus", "Head to head", "Against each opponent, most played first", "Opponent", "Avg score", p.versus,
+    html += pairTable("versus", "Head to head", "Most played first. Record when they threw against each other at the boards, every game in brackets", "Opponent", "Avg score", p.versus,
       function (r) { var g = r.w + r.l; return (r.pf / g).toFixed(1) + "-" + (r.pa / g).toFixed(1); });
     html += "<h2>Recent nights</h2><div class=\"table-wrap\"><table><thead><tr><th class=\"l\">Night</th><th class=\"l\">Partner</th><th>Finish</th><th>Record</th><th>PPR</th><th class=\"hide-sm\">DPR</th><th class=\"hide-sm\">4-Bag</th></tr></thead><tbody>";
     p.recent.forEach(function (r) {
@@ -212,8 +212,9 @@
     var html = "<h2>" + heading + '</h2><p class="sub pair-sub">' + sub + '</p><div class="table-wrap"><table><thead><tr><th class="l">' + who +
       "</th><th>Record</th><th>" + lastCol + '</th><th class="hide-sm">Last</th></tr></thead><tbody>';
     rows.forEach(function (r, i) {
+      var record = r.bw != null ? r.bw + "-" + r.bl + ' <span class="muted">(' + r.w + "-" + r.l + ")</span>" : r.w + "-" + r.l;
       html += "<tr" + (i >= PAIR_ROWS ? ' class="extra-' + key + '" style="display:none"' : "") + '><td class="l">' + playerLink(r.name) + "</td><td>" +
-        r.w + "-" + r.l + "</td><td>" + cell(r) + '</td><td class="hide-sm">' + d8(r.last) + "</td></tr>";
+        record + "</td><td>" + cell(r) + '</td><td class="hide-sm">' + d8(r.last) + "</td></tr>";
     });
     html += "</tbody></table></div>";
     if (rows.length > PAIR_ROWS) html += '<a href="#" class="more" data-more="' + key + '">Show all ' + rows.length + " &darr;</a>";
