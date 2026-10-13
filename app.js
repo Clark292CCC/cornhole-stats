@@ -17,7 +17,7 @@
   function getLeague() {
     var saved = null;
     try { saved = localStorage.getItem("league"); } catch (e) { /* private mode */ }
-    return saved === "monday" || saved === "thursday" ? saved : null;
+    return saved === "monday" || saved === "thursday" || (saved === "all" && (!DATA || DATA.leagues.all)) ? saved : null;
   }
   function setLeague(l) {
     document.body.setAttribute("data-league", l);
@@ -27,7 +27,9 @@
   }
   function league() { return document.body.getAttribute("data-league"); }
   function L() { return DATA.leagues[league()]; }
-  function title(l) { return l === "monday" ? "Monday Night Cornhole" : "Thursday Cornhole"; }
+  function title(l) { return l === "monday" ? "Monday Night Cornhole" : l === "all" ? "Monday + Thursday" : "Thursday Cornhole"; }
+  // In All, a small Mon / Thu tag says which night it was.
+  function tag(r) { return league() === "all" && r.league ? ' <span class="lg-tag lg-' + r.league + '">' + (r.league === "monday" ? "Mon" : "Thu") + "</span>" : ""; }
 
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var LONG = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -163,7 +165,7 @@
     var lg = L();
     var p = lg.players.filter(function (x) { return x.name === name; })[0];
     if (!p) {
-      var other = DATA.leagues[league() === "monday" ? "thursday" : "monday"].players.some(function (x) { return x.name === name; });
+      var other = league() !== "all" && DATA.leagues[league() === "monday" ? "thursday" : "monday"].players.some(function (x) { return x.name === name; });
       view.innerHTML = '<a class="back" href="#/players">&larr; Players</a><div class="empty"><h1>' + esc(name) + "</h1><p class=\"muted\">No " + esc(title(league())) +
         " nights yet." + (other ? ' <a href="#" id="flip">See their ' + (league() === "monday" ? "Thursday" : "Monday") + " stats &rarr;</a>" : "") + "</p></div>";
       var flip = document.getElementById("flip");
@@ -191,7 +193,7 @@
       function (r) { var g = r.w + r.l; return (r.pf / g).toFixed(1) + "-" + (r.pa / g).toFixed(1); });
     html += "<h2>Recent nights</h2><div class=\"table-wrap\"><table><thead><tr><th class=\"l\">Night</th><th class=\"l\">Partner</th><th>Finish</th><th>Record</th><th>PPR</th><th class=\"hide-sm\">DPR</th><th class=\"hide-sm\">4-Bag</th></tr></thead><tbody>";
     p.recent.forEach(function (r) {
-      html += '<tr><td class="l"><a href="#/night/' + r.date + '">' + d8(r.date) + '</a></td><td class="l">' + playerLink(r.partner) + "</td><td>" + ord(r.place) +
+      html += '<tr><td class="l"><a href="#/night/' + r.date + '">' + d8(r.date) + "</a>" + tag(r) + '</td><td class="l">' + playerLink(r.partner) + "</td><td>" + ord(r.place) +
         "</td><td>" + (r.wins == null ? "-" : r.wins + "-" + r.losses) + "</td><td>" + num(r.ppr) + '</td><td class="hide-sm">' + signed(r.dpr) + '</td><td class="hide-sm">' + (r.fours || 0) + "</td></tr>";
     });
     view.innerHTML = html + "</tbody></table></div>";
@@ -243,7 +245,7 @@
     });
     return g + '</svg><div class="legend"><span><i style="background:var(--accent)"></i>PPR each night</span>' +
       (avg != null ? '<span><i style="background:var(--accent-2)"></i>their average (' + num(avg) + ")</span>" : "") +
-      "<span>big dot = won the night</span></div>";
+      "<span>big dot = 1st place</span></div>";
   }
 
   function nights() {
@@ -252,7 +254,7 @@
     var html = "<h1>Nights</h1><p class=\"sub\">" + esc(title(league())) + " &bull; " + lg.events.length + " nights &bull; " + esc(span(lg)) + "</p><div class=\"card\" style=\"margin-top:14px;padding:0\">";
     lg.events.forEach(function (ev) {
       var win = ev.standings[0];
-      html += '<a class="list-link" href="#/night/' + ev.date + '"><span class="date">' + d8(ev.date) + " " + ev.date.slice(0, 4) + '</span><span class="who">' +
+      html += '<a class="list-link" href="#/night/' + ev.date + '"><span class="date">' + d8(ev.date) + " " + ev.date.slice(0, 4) + tag(ev) + '</span><span class="who">' +
         (win ? "1st: " + esc(win.team) + " (" + win.wins + "-" + win.losses + ")" : "") + '</span><span class="count">' + ev.players + " players</span></a>";
     });
     view.innerHTML = html + "</div>";
@@ -263,11 +265,11 @@
     var ev = lg.events.filter(function (e) { return e.date === date; })[0];
     if (!ev) {
       var other = league() === "monday" ? "thursday" : "monday";
-      if (DATA.leagues[other].events.some(function (e) { return e.date === date; })) { setLeague(other); return night(date); }
+      if (league() !== "all" && DATA.leagues[other].events.some(function (e) { return e.date === date; })) { setLeague(other); return night(date); }
       view.innerHTML = '<a class="back" href="#/nights">&larr; Nights</a><p class="muted">No night on ' + esc(date) + ".</p>";
       return;
     }
-    var html = '<a class="back" href="#/nights">&larr; Nights</a><h1>' + d8(ev.date, true) + "</h1><p class=\"sub\">" + esc(title(league())) + " &bull; " + ev.players + " players</p>";
+    var html = '<a class="back" href="#/nights">&larr; Nights</a><h1>' + d8(ev.date, true) + "</h1><p class=\"sub\">" + esc(title(ev.league || league())) + " &bull; " + ev.players + " players</p>";
     html += "<h2>Final standings</h2><div class=\"table-wrap\"><table><thead><tr><th>Place</th><th class=\"l\">Team</th><th>Record</th><th>Team PPR</th><th class=\"hide-sm\">Team DPR</th></tr></thead><tbody>";
     ev.standings.forEach(function (t) {
       html += "<tr><td>" + ord(t.place) + '</td><td class="l">' + teamLinks(t.team) + "</td><td>" + t.wins + "-" + t.losses + "</td><td>" + num(t.ppr) + '</td><td class="hide-sm">' + signed(t.dpr) + "</td></tr>";
@@ -431,7 +433,7 @@
   for (var i = 0; i < btns.length; i++) {
     btns[i].addEventListener("click", function () {
       setLeague(this.getAttribute("data-set-league"));
-      if (league() === "monday" && /^#\/league/.test(location.hash)) location.hash = "#/";
+      if (league() !== "thursday" && /^#\/league/.test(location.hash)) location.hash = "#/";
       else route();
     });
   }
@@ -442,6 +444,10 @@
     return r.json();
   }).then(function (data) {
     DATA = data;
+    if (!data.leagues.all) {   // older data without the All view
+      var allBtn = document.querySelector('[data-set-league="all"]');
+      if (allBtn) allBtn.style.display = "none";
+    }
     setLeague(getLeague() || "monday");   // first visit opens on Monday; after that, whichever they picked last
     var g = String(data.generatedAt || "");
     document.getElementById("updated").textContent = "Updated " + d8(g.slice(0, 10), true) + (g.length > 11 ? " at " + g.slice(11, 16) : "") + ".";
