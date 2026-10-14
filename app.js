@@ -186,6 +186,21 @@
       tile("Win %", pct(p.winPct), p.wins + "-" + p.losses) +
       tile("4-Bagger %", pct(p.fourPct), p.fours + " in " + p.rounds + " rounds") +
       tile("Bags in / on / off", p.inPct == null ? "-" : pct(p.inPct, 0) + " / " + pct(p.onPct, 0) + " / " + pct(p.offPct, 0), "in the hole / on the board / off") + "</div>";
+    var lines = [];
+    if (p.bestGame) {
+      var g = p.bestGame;
+      lines.push('<div class="hl"><div class="label">Best game ever</div><div class="hlbig">' + num(g.ppr) + ' PPR <span class="muted">over ' + g.rounds + " rounds" +
+        (g.fours ? " &bull; " + g.fours + " four-bagger" + (g.fours === 1 ? "" : "s") : "") + '</span></div><div class="note">' +
+        (g.partner ? "with " + esc(g.partner) + " " : "") + (g.opponents ? "vs " + esc(g.opponents) : "") +
+        (g.score ? " &bull; " + (g.won ? "won " : "") + esc(g.score) : "") + " &bull; " + d8(g.date, true) + "</div></div>");
+    }
+    if (p.improved) {
+      var im = p.improved;
+      lines.push('<div class="hl"><div class="label">Most improved' +
+        '</div><div class="hlbig">+' + num(im.change) + ' PPR</div><div class="note">' + num(im.from) + " &rarr; " + num(im.to) +
+        " from their first 5 nights to their last 5</div></div>");
+    }
+    if (lines.length) html += '<div class="grid g2 hls" style="margin-top:14px">' + lines.map(function (x) { return '<div class="card">' + x + "</div>"; }).join("") + "</div>";
     if (p.trend && p.trend.length > 1) html += "<h2>PPR night by night</h2><div class=\"card\">" + trendChart(p) + "</div>";
     html += pairTable("partners", "With each partner", "Every game played together, most played first", "Partner", "Win %", p.partners,
       function (r) { return pct(r.w / (r.w + r.l), 0); });

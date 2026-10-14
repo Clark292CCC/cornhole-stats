@@ -144,3 +144,10 @@ tr.dim td { color: var(--muted); }
   .tile .big { font-size: 26px; }
   .hide-sm { display: none; }
 }
+
+/* Player page highlights: best game ever, most improved (96.19) */
+.hls .card { border-left: 4px solid var(--accent); }
+.hl .label { font: 700 15px "Saira Extra Condensed", sans-serif; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+.hl .hlbig { font: 800 26px "Saira Extra Condensed", sans-serif; color: var(--ink); line-height: 1.15; margin: 2px 0; }
+.hl .hlbig .muted { font: 600 14px system-ui, sans-serif; }
+.hl .note { font-size: 13px; color: var(--ink-2); }
