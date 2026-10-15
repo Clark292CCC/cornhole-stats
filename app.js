@@ -128,7 +128,7 @@
       var tiers = TIERS[it.key], reached = null, upcoming = null;
       tiers.forEach(function (t) { if (it.value >= t) reached = t; else if (upcoming == null) upcoming = t; });
       if (reached != null) badges.push('<div class="badge"><div class="ic">' + it.icon + '</div><div class="bn">' + it.value + '</div><div class="bl">' +
-        (it.value === 1 ? it.one : it.label) + (reached !== it.value ? " &bull; " + reached + " reached" : "") + "</div></div>");
+        (it.value === 1 ? it.one : it.label) + "</div></div>");
       if (upcoming != null && it.value > 0) next.push({ text: upcoming + " " + (upcoming === 1 ? it.one : it.label), left: upcoming - it.value, share: it.value / upcoming });
     });
     if (p.firstTitle) badges.push('<div class="badge"><div class="ic">&#11088;</div><div class="bn">1st</div><div class="bl">title &bull; ' + d8(p.firstTitle) + "</div></div>");
