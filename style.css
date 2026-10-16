@@ -214,3 +214,10 @@ th[data-dir="asc"]::after { content: "\25B2"; }
 .champ-n a { color: var(--accent); text-decoration: none; }
 .champ-p { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 22px; color: var(--ink-2); margin-top: 6px; }
 .champ-p a { color: inherit; }
+
+/* 96.28: Add to Home Screen tip */
+.a2hs { position: relative; display: flex; gap: 12px; align-items: flex-start; margin: 14px 0 0; border-left: 4px solid var(--accent); padding-right: 38px; }
+.a2hs img { border-radius: 10px; flex-shrink: 0; }
+.a2hs .note { color: var(--ink-2); font-size: 14px; margin-top: 3px; }
+.a2hs-x { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: var(--muted); font-size: 24px; line-height: 1; padding: 4px 8px; cursor: pointer; }
+.a2hs-go { margin-top: 10px; }

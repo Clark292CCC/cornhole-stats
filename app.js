@@ -144,10 +144,58 @@
     return html;
   }
 
+  // ------------------------------------------------------------------ Add to Home Screen tip (96.28)
+  // A one-time card on Home explaining how to put the stats app on the phone's home screen.
+  // Hidden once dismissed, and never shown when it's already opened from the home screen.
+  var installEvent = null;
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    installEvent = e;
+    var b = document.getElementById("a2hs-install");
+    if (b) b.style.display = "";
+  });
+  window.addEventListener("appinstalled", function () { remember("a2hs", "done"); var c = document.getElementById("a2hs"); if (c) c.remove(); });
+  function remember(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* private mode */ } }
+  function recall(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+  function installed() {
+    return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+  }
+  function homeScreenTip() {
+    if (installed() || recall("a2hs")) return "";
+    var ua = navigator.userAgent || "";
+    var ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && "ontouchend" in document);
+    var android = /Android/i.test(ua);
+    if (!ios && !android) return "";
+    var how = ios
+      ? "In Safari, tap the Share button <b>&#8679;</b> at the bottom, then <b>Add to Home Screen</b>."
+      : "Tap the browser menu <b>&#8942;</b>, then <b>Add to Home screen</b> (or <b>Install app</b>).";
+    return '<div class="card a2hs" id="a2hs"><button class="a2hs-x" data-a2hs="close" aria-label="Close">&times;</button>' +
+      '<img src="icon-192.png" alt="" width="44" height="44"><div><b>Put CCC Stats on your home screen</b>' +
+      '<div class="note">Opens like an app, full screen, one tap away. ' + how + "</div>" +
+      '<button class="act a2hs-go" id="a2hs-install" data-a2hs="install"' + (installEvent ? "" : ' style="display:none"') + ">Install</button></div></div>";
+  }
+  function bindHomeScreenTip() {
+    var card = document.getElementById("a2hs");
+    if (!card) return;
+    card.addEventListener("click", function (e) {
+      var act = e.target.closest && e.target.closest("[data-a2hs]");
+      if (!act) return;
+      if (act.getAttribute("data-a2hs") === "install" && installEvent) {
+        installEvent.prompt();
+        installEvent.userChoice.then(function (r) { if (r && r.outcome === "accepted") { remember("a2hs", "done"); card.remove(); } });
+        installEvent = null;
+      } else {
+        remember("a2hs", "closed");
+        card.remove();
+      }
+    });
+  }
+
   function home() {
     var lg = L(), ev = lg.events[0];
     var html = "<h1>" + esc(title(league())) + "</h1>";
     html += '<p class="sub">' + esc(span(lg)) + " &bull; " + lg.events.length + " nights &bull; " + lg.players.length + " players</p>";
+    html += homeScreenTip();
     html += '<div style="margin-top:14px"><input class="search" id="q" type="search" placeholder="Find a player&hellip;" autocomplete="off"></div>';
     html += '<div id="results"></div>';
     if (ev) {
@@ -705,7 +753,7 @@
     else if (page === "records") records();
     else if (page === "league") leaguePage();
     else if (page === "vs") versus(decodeURIComponent(parts[1] || ""), decodeURIComponent(parts[2] || ""));
-    else home();
+    else { home(); bindHomeScreenTip(); }
     makeSortable(view);
     bindActions(page === "player" ? arg : page === "night" ? d8(arg, true) : "");
     showMeButton();
