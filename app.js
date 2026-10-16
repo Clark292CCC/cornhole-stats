@@ -522,6 +522,7 @@
     if (!s) { view.innerHTML = "<h1>Thursday League</h1><p class=\"muted\">No league season yet.</p>"; return; }
     var html = "<h1>" + esc(s.name) + "</h1><p class=\"sub\">" + d8(s.start, true) + " &ndash; " + d8(s.end, true) + " &bull; best " + s.bestResults + " of " + s.weeks +
       " weeks count &bull; " + s.winBonus + "-point win bonus</p>";
+    html += seasonCard(s);
     html += "<h2>Standings race</h2><p class=\"muted\" style=\"margin:-4px 0 10px\">Place after each week for the current top 8.</p>" +
       '<div class="card"><div class="legend" id="legend"></div><div id="race"></div></div>';
     html += "<h2>Standings</h2><p class=\"muted\" style=\"margin:-4px 0 10px\">Order only - league points aren't posted.</p>" +
@@ -531,6 +532,27 @@
     });
     view.innerHTML = html + "</tbody></table></div>";
     drawRace(s.race);
+  }
+
+  // Before the finale: how many league nights are left. After Finalize Season: the champion (places only, no points).
+  function seasonCard(s) {
+    if (s.final && s.final.champion) {
+      var medals = ["&#129352;", "&#129353;"];
+      return '<div class="card champ-card"><div class="cup">&#127942;</div><div class="champ-k">' + esc(s.name) + ' champion</div>' +
+        '<div class="champ-n">' + playerLink(s.final.champion) + "</div>" +
+        (s.final.podium.length ? '<div class="champ-p">' + s.final.podium.map(function (n, i) {
+          return "<span>" + medals[i] + " " + playerLink(n) + "</span>";
+        }).join("") + "</div>" : "") + "</div>";
+    }
+    var c = s.countdown;
+    if (!c || !s.weeks) return "";
+    var finale = "Thursday, " + d8(s.end);
+    var big = c.left === 0 ? "Final standings coming soon" : c.left === 1 ? "Finale night is next!" : c.left + " league nights left";
+    var line = (c.left ? "Finale " + esc(finale) : "Season complete") +
+      (c.left && c.canWin ? " &bull; " + c.canWin + " player" + (c.canWin === 1 ? "" : "s") + " can still win" : "");
+    return '<div class="card count-card"><div class="label">Title race</div><div class="count-big">' + big + "</div>" +
+      '<div class="note">' + line + '</div><div class="bar"><i style="width:' + Math.round(100 * c.played / s.weeks) + '%"></i></div>' +
+      '<div class="muted count-sm">' + c.played + " of " + s.weeks + " nights played</div></div>";
   }
 
   function drawRace(race) {

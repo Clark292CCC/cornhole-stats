@@ -199,3 +199,18 @@ th[data-dir="asc"]::after { content: "\25B2"; }
 .hl-grid .note { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
 .slides img { width: 100%; height: auto; border-radius: 10px; display: block; margin-bottom: 10px; border: 1px solid var(--line); }
 @media (max-width: 400px) { .me-btn { padding: 6px 10px; } .me-btn span { display: none; } }
+
+/* 96.25: Thursday League countdown and champion banner */
+.count-card { border-left: 4px solid var(--accent); margin: 12px 0 4px; }
+.count-card .label { font: 700 14px "Saira Extra Condensed", sans-serif; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+.count-big { font: 800 30px "Saira Extra Condensed", sans-serif; color: var(--ink); line-height: 1.15; }
+.count-card .note { color: var(--ink-2); font-size: 14px; margin-top: 2px; }
+.count-card .bar { margin-top: 10px; }
+.count-sm { font-size: 12px; margin-top: 4px; }
+.champ-card { text-align: center; border: 2px solid var(--accent); margin: 12px 0 4px; background: radial-gradient(circle at 50% 0, rgba(242, 193, 78, .16), var(--panel) 70%); }
+.champ-card .cup { font-size: 44px; line-height: 1.1; }
+.champ-k { font: 700 14px "Saira Extra Condensed", sans-serif; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.champ-n { font: 800 40px "Saira Extra Condensed", sans-serif; line-height: 1.1; margin: 2px 0; }
+.champ-n a { color: var(--accent); text-decoration: none; }
+.champ-p { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 22px; color: var(--ink-2); margin-top: 6px; }
+.champ-p a { color: inherit; }
