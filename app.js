@@ -451,8 +451,9 @@
     if (h.comeback) card("Comeback of the night", teamLinks(h.comeback.team) + " &bull; down " + h.comeback.down,
       "from " + esc(h.comeback.low) + " to win " + esc(h.comeback.final));
     if (h.longest) card("Longest game", h.longest.rounds + " rounds", esc(h.longest.teams) + " &bull; " + esc(h.longest.score));
-    if (h.fours) card("Most four-baggers", playerLink(h.fours.name) + " &bull; " + h.fours.count,
-      h.streak ? "Most rounds won in a row: " + esc(h.streak.name) + " &bull; " + h.streak.count + (h.streak.record ? " (club record)" : "") : "");
+    if (h.fours) card("Most four-baggers", playerLink(h.fours.name) + " &bull; " + h.fours.count, "");
+    if (h.streak) card("Most rounds won in a row", playerLink(h.streak.name) + " &bull; " + h.streak.count,
+      h.streak.record ? "A new club record!" : "");
     return cards.length ? '<h2>Night highlights</h2><div class="hl-grid">' + cards.join("") + "</div>" : "";
   }
 
