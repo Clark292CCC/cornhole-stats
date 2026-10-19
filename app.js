@@ -494,7 +494,10 @@
         var g = side(v, 0, 1), bk = side(v, 2, 3), bd = side(v, 4, 5), rd = side(v, 6, 7);
         html += '<div class="card vs-card"><div class="vs-big"><div><div class="n' + (g[0] > g[1] ? " lead" : "") + '">' + g[0] + '</div><div class="muted">' + esc(a) +
           '</div></div><div class="vs-word">GAMES</div><div><div class="n' + (g[1] > g[0] ? " lead" : "") + '">' + g[1] + '</div><div class="muted">' + esc(b) + "</div></div></div>";
-        if (bd[0] + bd[1] > 0) html += row("Games at the board", bd[0], bd[1]) + row("Rounds won at the board", rd[0], rd[1]);
+        if (bd[0] + bd[1] > 0) {
+          html += row("Games at the board", bd[0], bd[1]) + row("Rounds won at the board", rd[0], rd[1]);
+          if (v.length > 9) html += '<div class="vs-row"><span></span><span class="lab">Rounds tied at the board &bull; ' + v[9] + "</span><span></span></div>";
+        }
         if (bk[0] + bk[1] > 0) html += row("Bracket games", bk[0], bk[1]);
         html += '<div class="vs-row"><span></span><span class="lab">Last met &bull; ' + d8(v[8], true) + "</span><span></span></div></div>";
       } else {
