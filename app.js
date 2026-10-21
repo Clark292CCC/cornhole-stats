@@ -191,10 +191,36 @@
     });
   }
 
+  // ------------------------------------------------------------------ "Your last night" (96.31)
+  // Only for someone who tapped "This is me": their own latest night in this view, plus one good-news line.
+  function lastNightCard(lg) {
+    var me = getMe();
+    if (!me) return "";
+    var p = lg.players.filter(function (x) { return x.name === me; })[0];
+    if (!p || !p.recent || !p.recent.length) return "";
+    var r = p.recent[0];
+    var ev = lg.events.filter(function (e) { return e.date === r.date; })[0];
+    var teams = ev && ev.standings ? ev.standings.length : 0;
+    var day = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date(r.date + "T12:00:00").getDay()];
+    function box(big, label) {
+      return '<div class="ln-box"><div class="ln-n">' + big + '</div><div class="ln-l">' + label + "</div></div>";
+    }
+    var place = r.place ? ord(r.place) + (teams ? " of " + teams + " teams" : "") : "Played";
+    var fourPct = r.rounds ? " (" + Math.round(100 * (r.fours || 0) / r.rounds) + "%)" : "";
+    return '<div class="card last-night"><div class="label">&#9733; Your last night &bull; ' + esc(day) + ", " + esc(d8(r.date)) + "</div>" +
+      '<div class="ln-big">' + place + "</div>" +
+      '<div class="note">' + (r.partner ? "with " + playerLink(r.partner) + " &bull; " : "") + (r.wins == null ? "" : r.wins + "-" + r.losses) + "</div>" +
+      '<div class="ln-boxes">' + box(num(r.ppr), "PPR") + box(signed(r.dpr), "DPR") + box(r.fours || 0, "four-baggers" + fourPct) + "</div>" +
+      (p.lastNote ? '<div class="ln-note">' + esc(p.lastNote) + "</div>" : "") +
+      '<div style="margin-top:10px"><a class="act" href="#/player/' + slug(me) + '">See your page &rarr;</a> ' +
+      '<a class="act" href="#/night/' + r.date + '">That night &rarr;</a></div></div>';
+  }
+
   function home() {
     var lg = L(), ev = lg.events[0];
     var html = "<h1>" + esc(title(league())) + "</h1>";
     html += '<p class="sub">' + esc(span(lg)) + " &bull; " + lg.events.length + " nights &bull; " + lg.players.length + " players</p>";
+    html += lastNightCard(lg);
     html += homeScreenTip();
     html += '<div style="margin-top:14px"><input class="search" id="q" type="search" placeholder="Find a player&hellip;" autocomplete="off"></div>';
     html += '<div id="results"></div>';

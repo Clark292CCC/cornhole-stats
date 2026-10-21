@@ -221,3 +221,14 @@ th[data-dir="asc"]::after { content: "\25B2"; }
 .a2hs .note { color: var(--ink-2); font-size: 14px; margin-top: 3px; }
 .a2hs-x { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: var(--muted); font-size: 24px; line-height: 1; padding: 4px 8px; cursor: pointer; }
 .a2hs-go { margin-top: 10px; }
+
+/* 96.31: "Your last night" on Home */
+.last-night { border-left: 4px solid var(--accent); margin: 14px 0 0; }
+.last-night .label { font: 700 14px "Saira Extra Condensed", sans-serif; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+.ln-big { font: 800 32px "Saira Extra Condensed", sans-serif; color: var(--ink); line-height: 1.15; }
+.last-night .note { color: var(--ink-2); font-size: 14px; }
+.ln-boxes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.ln-box { background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 4px; text-align: center; }
+.ln-n { font: 800 24px "Saira Extra Condensed", sans-serif; color: var(--ink); }
+.ln-l { font-size: 11px; color: var(--ink-2); }
+.ln-note { margin-top: 10px; font-size: 13px; color: var(--ink-2); }
