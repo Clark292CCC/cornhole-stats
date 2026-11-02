@@ -421,16 +421,61 @@
       "<span>big dot = 1st place</span></div>";
   }
 
+  // The Month in Bags (96.37): everyone's month in numbers - nothing individual. Newest month first.
+  var monthPick = 0;
+  function monthCard(lg) {
+    var months = lg.months || [];
+    if (!months.length) return "";
+    if (monthPick >= months.length) monthPick = 0;
+    var m = months[monthPick];
+    var name = m.label.split(" ")[0];
+    function box(big, label) {
+      return '<div class="ln-box"><div class="ln-n">' + big + '</div><div class="ln-l">' + label + "</div></div>";
+    }
+    var older = monthPick < months.length - 1 ? '<a href="#" class="mib-nav" data-step="1">&lsaquo; ' + esc(months[monthPick + 1].label.split(" ")[0].slice(0, 3)) + "</a>" : "";
+    var newer = monthPick > 0 ? '<a href="#" class="mib-nav" data-step="-1">' + esc(months[monthPick - 1].label.split(" ")[0].slice(0, 3)) + " &rsaquo;</a>" : "";
+    var html = '<div class="card last-night mib"><div class="mib-top"><div class="label">&#127805; ' + esc(name) + " in bags" +
+      (m.complete ? "" : " (so far)") + '</div><div class="mib-navs">' + older + newer + "</div></div>" +
+      '<div class="ln-big">' + m.bags.toLocaleString() + " bags thrown</div>" +
+      '<div class="note">about ' + m.tons + " tons of corn &bull; about " + m.miles + " miles of tossing &bull; " + m.nights + " night" + (m.nights === 1 ? "" : "s") + "</div>" +
+      '<div class="ln-boxes">' + box(m.fours.toLocaleString(), "four-baggers<br>from " + m.fourPlayers + " players") +
+      box(m.inPct == null ? "-" : m.inPct + "%", "in the hole") + box(m.games.toLocaleString(), "games") + "</div>" +
+      '<div class="ln-boxes">' + box(m.onePoint, "one-point games") + box(m.cancels, "four-baggers canceled out") +
+      box(m.hours == null ? "-" : m.hours + " hrs", "of cornhole") + "</div>";
+    if (m.champions.length) {
+      html += '<div class="mib-head">Champions</div><div class="mib-list">' + m.champions.map(function (c) {
+        return '<a href="#/night/' + c.date + '">' + esc(d8(c.date)) + "</a> &nbsp;<b>" + esc(c.team) + "</b>";
+      }).join("<br>") + "</div>";
+    }
+    if (m.welcome.length) {
+      var w = m.welcome.map(esc);
+      html += '<div class="mib-head">Welcome to the club</div><div class="mib-list">' +
+        (w.length > 1 ? w.slice(0, -1).join(", ") + " and " + w[w.length - 1] : w[0]) + "</div>";
+    }
+    return html + "</div>";
+  }
+  function bindMonthCard() {
+    var links = view.querySelectorAll(".mib-nav");
+    for (var i = 0; i < links.length; i++) links[i].addEventListener("click", function (e) {
+      e.preventDefault();
+      monthPick += parseInt(this.getAttribute("data-step"), 10);
+      var card = view.querySelector(".mib");
+      if (card) { card.outerHTML = monthCard(L()); bindMonthCard(); }
+    });
+  }
+
   function nights() {
 
     var lg = L();
-    var html = "<h1>Nights</h1><p class=\"sub\">" + esc(title(league())) + " &bull; " + lg.events.length + " nights &bull; " + esc(span(lg)) + "</p><div class=\"card\" style=\"margin-top:14px;padding:0\">";
+    var html = "<h1>Nights</h1><p class=\"sub\">" + esc(title(league())) + " &bull; " + lg.events.length + " nights &bull; " + esc(span(lg)) + "</p>" +
+      monthCard(lg) + "<div class=\"card\" style=\"margin-top:14px;padding:0\">";
     lg.events.forEach(function (ev) {
       var win = ev.standings[0];
       html += '<a class="list-link" href="#/night/' + ev.date + '"><span class="date">' + d8(ev.date) + " " + ev.date.slice(0, 4) + tag(ev) + '</span><span class="who">' +
         (win ? "1st: " + esc(win.team) + " (" + win.wins + "-" + win.losses + ")" : "") + '</span><span class="count">' + ev.players + " players</span></a>";
     });
     view.innerHTML = html + "</div>";
+    bindMonthCard();
   }
 
   function night(date) {

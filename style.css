@@ -232,3 +232,12 @@ th[data-dir="asc"]::after { content: "\25B2"; }
 .ln-n { font: 800 24px "Saira Extra Condensed", sans-serif; color: var(--ink); }
 .ln-l { font-size: 11px; color: var(--ink-2); }
 .ln-note { margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+
+/* The Month in Bags card on the Nights page (96.37) */
+.mib-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.mib-navs { display: flex; gap: 12px; font-size: 14px; white-space: nowrap; }
+.mib-navs a { color: var(--ink-2); text-decoration: none; }
+.mib-head { margin-top: 12px; font: 700 14px "Saira Extra Condensed", sans-serif; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
+.mib-list { font-size: 14px; line-height: 1.6; color: var(--ink); }
+.mib-list a { color: var(--ink-2); }
+.mib .ln-big { font-size: 28px; }
