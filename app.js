@@ -442,6 +442,11 @@
       box(m.inPct == null ? "-" : m.inPct + "%", "in the hole") + box(m.games.toLocaleString(), "games") + "</div>" +
       '<div class="ln-boxes">' + box(m.onePoint, "one-point games") + box(m.cancels, "four-baggers canceled out") +
       box(m.hours == null ? "-" : m.hours + " hrs", "of cornhole") + "</div>";
+    if (m.milestones && m.milestones.length) {
+      html += '<div class="mib-head">Club milestones</div><div class="mib-list">' + m.milestones.map(function (x) {
+        return "&#127881; " + esc(d8(x.date)) + " &nbsp;<b>" + esc(x.text.charAt(0).toUpperCase() + x.text.slice(1)) + "</b>";
+      }).join("<br>") + "</div>";
+    }
     if (m.champions.length) {
       html += '<div class="mib-head">Champions</div><div class="mib-list">' + m.champions.map(function (c) {
         return '<a href="#/night/' + c.date + '">' + esc(d8(c.date)) + "</a> &nbsp;<b>" + esc(c.team) + "</b>";
